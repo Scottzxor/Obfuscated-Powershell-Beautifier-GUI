@@ -6,102 +6,105 @@
 # Functionality thought: Add toggle for minimizing window after button submitted, for quick access to CyberChef.
 
 import re
-from tkinter import ttk
-import pyperclip as pc
 import tkinter as tk
+from tkinter import ttk
 
 
 def main():
-    print("Input your base64 PowerShell code you'd like to beautify. Your beautified results "
-          "will automatically copied to your clipboard.")
+    root = tk.Tk()
+    root.geometry('400x400')
+    root.title("b64splitter")
+
+    def validate_ps(obfuscatedpowershell):
+        pattern1 = r"\'\'\+\'|\'"
+        pattern2 = r'powershell\.exe'
+
+        psdeobf = re.sub(pattern2, "powershell[.]exe", obfuscatedpowershell)
+
+        plusdeobf = re.sub(pattern1, "", psdeobf)
+
+        return plusdeobf
+
+    # set width and height values of root
+    w = 600
+    h = 300
+
+    # Set variables for size of screen using winfo
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+
+    # Calculate starting X and Y coordinates for Window
+    x = (screen_width / 2) - (w / 2)
+    y = (screen_height / 2) - (h / 2)
+
+    # Set digit placeholders to equal above values via digit x digit concatenated with digit + digit.
+    root.geometry('%dx%d+%d+%d' % (w, h, x, y))
+
+    # Instantiate style object
+    s = ttk.Style()
+    # Creates template for all frames
+    s.configure('TFrame', width=1000, height=1000, background="black")
+    s.configure("SecondaryFrame", background="goldenrod1")
+
+    # Create the main frame
+    mainframe = ttk.Frame(root, width=1000, height=1000)
+    # Fill root: This is extremely important to get visibility of frame.
+    mainframe.pack(fill="both")
+
+    # Creating secondary frame for title
+    secondaryframe = ttk.Frame(root, width=500, height=500)
+    # Fill root: This is extremely important to get visibility of frame.
+    secondaryframe.pack(fill="both")
+
+    label = tk.Label(mainframe, text="Input the base64 code you'd like to split. \n Your beautified results will "
+                                     "automatically be copied to your clipboard.", font=('Courier New', 10,),
+                     wraplength=500,
+                     justify="center")
+    label.pack(padx=15, pady=15)
+
+    label = tk.Label(secondaryframe,
+                     text="Input your base64 PowerShell code you'd like to beautify. Your results will automatically "
+                          "copied to your clipboard.", font=('Courier New', 10,), wraplength=500, justify="center")
+    label.pack(padx=15, pady=15)
+
+    # Text box for obfuscated base 64 encoding.
+    inputbox = tk.Text(secondaryframe, font=('Courier New', 10,))
+    inputbox.pack(side="top", padx=10, pady=10)
+    # Lambda to delete text upon left click.
+    inputbox.bind("<Button-1>", lambda e: inputbox.delete(0.0, tk.END))
+    # Default text
+    inputbox.insert(0.0, 'Plug your obfuscated PowerShell script here.')
+
+    def b64splitter(b64script):
+        deobfscript = validate_ps(b64script)
+
+        commands = deobfscript.split(";")
+
+        try:
+            commands = [command.strip() for command in commands if command.strip()]
+
+            return "\n\n".join(commands)
+
+        except (RuntimeError, TypeError, NameError) as e:
+            return f"Apologies, my bytecode seems to have scrambled. Please try again.", e
+
+    def on_click():
+        # take in user text from text box
+        userinput = inputbox.get(0.0, tk.END)
+        # Run user text through beautifying function
+        root.clipboard_clear()
+        root.clipboard_append(b64splitter(userinput))
+        inputbox.delete(0.0, tk.END)
+        inputbox.insert(0.0, "Your powershell script has been partially deobfuscated, split, and copied to your "
+                             "clipboard. Soldier on, Cyber Warrior!")
+
+    # Button, as part of the main frame, executes on_click function.
+    button = tk.Button(mainframe, text="BeautifyB64", command=on_click)
+    button.pack(side="bottom", pady=25)
+
+    # end root
+    root.mainloop()
 
 
-def validate_ps(obfuscatedpowershell):
-    pattern1 = r"\'\'\+\'|\'"
-    pattern2 = r'powershell\.exe'
-
-    psdeobf = re.sub(pattern2, "powershell[.]exe", obfuscatedpowershell)
-
-    plusdeobf = re.sub(pattern1, "", psdeobf)
-
-    return plusdeobf
-
-
-# Create primary window
-root = tk.Tk()
-root.geometry('400x400')
-root.title("b64splitter")
-
-# set width and height values of root
-w = 600
-h = 300
-
-# Set variables for size of screen using winfo
-screen_width = root.winfo_screenwidth()
-screen_height = root.winfo_screenheight()
-
-# Calculate starting X and Y coordinates for Window
-x = (screen_width / 2) - (w / 2)
-y = (screen_height / 2) - (h / 2)
-
-# Set digit placeholders to equal above values via digit x digit concatenated with digit + digit.
-root.geometry('%dx%d+%d+%d' % (w, h, x, y))
-
-# Instantiate style object
-s = ttk.Style()
-# Creates template for all frames
-s.configure('TFrame', width=1000, height=1000, background="gold")
-s.configure('Text', foreground="green")
-
-# Create the main frame
-mainframe = ttk.Frame(root, width=1000, height=1000)
-# Fill root: This is extremely important to get visibility of frame.
-mainframe.pack(fill="both")
-
-# Creating secondary frame for title
-secondaryframe = ttk.Frame(root, width=500, height=500)
-# Fill root: This is extremely important to get visibility of frame.
-mainframe.pack(fill="both")
-
-label = tk.Label(mainframe, text="Input the base64 code you'd like to split. \n Your beautified results will "
-                                 "automatically be copied to your clipboard.", font=('Courier New', 10,),
-                 wraplength=500,
-                 justify="center")
-label.pack(padx=15, pady=15)
-
-# Text box for obfuscated base 64 encoding.
-inputbox = tk.Text(mainframe, font=('Courier New', 10,), xscrollcommand="xs set")
-inputbox.pack(side="top", padx=50, pady=50)
-# Lambda to delete text upon left click.
-inputbox.bind("<Button-1>", lambda e: inputbox.delete(1.0, tk.END))
-# Default text
-inputbox.insert(1.0, 'Plug your obfuscated PowerShell script here.')
-
-
-def b64splitter(script):
-    deobfscript = validate_ps(script)
-
-    commands = deobfscript.split(";")
-
-    try:
-
-        commands = [command.strip() for command in commands if command.strip()]
-
-        print("Your base64 code has been beautified and copied to your clipboard.")
-
-        return "\n\n".join(commands)
-
-    except (RuntimeError, TypeError, NameError) as e:
-        print(f"Apologies, my bytecode seems to have scrambled. Please try again.", e)
-        exit()
-
-
-# Submit button--Not sure why this is dictating the size of the Frame.
-button = tk.Button(mainframe, text="BeautifyB64", command=pc.copy(b64splitter(inputbox.get(1.0, tk.END))))
-button.pack(side="bottom", pady=25)
-
-# end root
-root.mainloop()
-
-if __name__ != '__main__':
+if __name__ == '__main__':
     main()
