@@ -44,7 +44,8 @@ def main():
     s = ttk.Style()
     # Creates template for all frames
     s.configure('TFrame', width=1000, height=1000, background="black")
-    s.configure("SecondaryFrame", background="goldenrod1")
+    s.configure("SecondaryFrame", background="gold")
+    s.configure("Label", background="gold", foreground="black")
 
     # Create the main frame
     mainframe = ttk.Frame(root, width=1000, height=1000)
@@ -56,20 +57,15 @@ def main():
     # Fill root: This is extremely important to get visibility of frame.
     secondaryframe.pack(fill="both")
 
-    label = tk.Label(mainframe, text="Input the base64 code you'd like to split. \n Your beautified results will "
-                                     "automatically be copied to your clipboard.", font=('Courier New', 10,),
-                     wraplength=500,
-                     justify="center")
-    label.pack(padx=15, pady=15)
-
-    label = tk.Label(secondaryframe,
-                     text="Input your base64 PowerShell code you'd like to beautify. Your results will automatically "
-                          "copied to your clipboard.", font=('Courier New', 10,), wraplength=500, justify="center")
-    label.pack(padx=15, pady=15)
+    label = ttk.Label(mainframe, text="Input the base64 code you'd like to split. \n Your beautified results will "
+                                      "automatically be copied to your clipboard.", font=('Courier New', 10,),
+                      wraplength=515,
+                      justify="center", style="Label")
+    label.pack(padx=10, pady=10)
 
     # Text box for obfuscated base 64 encoding.
     inputbox = tk.Text(secondaryframe, font=('Courier New', 10,))
-    inputbox.pack(side="top", padx=10, pady=10)
+    inputbox.pack(side="top", padx=15, pady=15)
     # Lambda to delete text upon left click.
     inputbox.bind("<Button-1>", lambda e: inputbox.delete(0.0, tk.END))
     # Default text
